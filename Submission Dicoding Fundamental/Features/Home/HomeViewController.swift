@@ -13,8 +13,6 @@ class HomeViewController: UIViewController {
     private var collectionView: UICollectionView?
     private var gameData = [Game]()
 
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpCollectionView()

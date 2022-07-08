@@ -18,7 +18,7 @@ class FirstRowTableViewCell: UITableViewCell {
     
     let titleLabel: UILabel = {
         let title = UILabel()
-        title.numberOfLines = 2
+        title.numberOfLines = 0
         title.textAlignment = .center
         title.font = UIFont.boldSystemFont(ofSize: 30.0)
         return title
@@ -46,7 +46,8 @@ class FirstRowTableViewCell: UITableViewCell {
             imagePoster.centerXAnchor.constraint(equalTo: centerXAnchor),
             titleLabel.topAnchor.constraint(equalTo: imagePoster.bottomAnchor, constant: 22),
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
         
     }

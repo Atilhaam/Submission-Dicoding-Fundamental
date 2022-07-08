@@ -82,7 +82,7 @@ class DetailGameViewController: UIViewController {
         ])
         tableView.showsVerticalScrollIndicator = false
         tableView.separatorStyle = .none
-        tableView.estimatedRowHeight = 100
+//        tableView.estimatedRowHeight = 1000
         tableView.rowHeight = UITableView.automaticDimension
         tableView.dataSource = self
         tableView.delegate = self
@@ -267,7 +267,7 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.imagePoster.kf.setImage(with: imageUrl)
                 cell.titleLabel.text = detail.name
             }
-            cell.selectionStyle = .none
+//            cell.selectionStyle = .none
             return cell
         }
         if indexPath.row == 1 {
@@ -279,6 +279,7 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
                 let genreText = genreData.map({ $0.name }).joined(separator: ", ")
                 let developerText = developerData.map({ $0.name }).joined(separator: ", ")
                 let publisherText = publisherData.map({ $0.name }).joined(separator: ", ")
+                print(publisherText)
                 cell2.aboutContent.text = desc.html2String
                 cell2.platformsContent.text = platformDetail
                 cell2.genreContent.text = genreText
@@ -287,7 +288,7 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
                 cell2.metaCriticScoreContent.text = String(detail.metacritic)
                 cell2.releaseDateContent.text = detail.released
             }
-            cell2.selectionStyle = .none
+//            cell2.selectionStyle = .none
             return cell2
         }
         return cell
@@ -300,11 +301,16 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == 0 {
+            if let game = game {
+                if game.name.count < 10 {
+                    return 300
+                }
+            }
             
-            return 320
+            return 350
         }
         if indexPath.row == 1 {
-            return 1000
+            return 1100
         }
         return 300
     }

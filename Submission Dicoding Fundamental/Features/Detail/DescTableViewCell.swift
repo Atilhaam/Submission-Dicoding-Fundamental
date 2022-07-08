@@ -167,13 +167,14 @@ class DescTableViewCell: UITableViewCell {
         publisherContent.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
+            aboutLabel.topAnchor.constraint(equalTo: topAnchor),
             aboutLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             aboutLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             aboutContent.topAnchor.constraint(equalTo: aboutLabel.bottomAnchor),
             aboutContent.leadingAnchor.constraint(equalTo: leadingAnchor),
             aboutContent.trailingAnchor.constraint(equalTo: trailingAnchor),
             
-            platformsLabel.topAnchor.constraint(equalTo: aboutContent.bottomAnchor, constant: 16),
+            platformsLabel.topAnchor.constraint(equalTo: aboutContent.bottomAnchor, constant: 8),
             platformsLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
             platformsLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             platformsContent.topAnchor.constraint(equalTo: platformsLabel.bottomAnchor),
@@ -213,7 +214,8 @@ class DescTableViewCell: UITableViewCell {
             publisherLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
             publisherContent.topAnchor.constraint(equalTo: publisherLabel.bottomAnchor),
             publisherContent.trailingAnchor.constraint(equalTo: trailingAnchor),
-            publisherContent.leadingAnchor.constraint(equalTo: leadingAnchor)
+            publisherContent.leadingAnchor.constraint(equalTo: leadingAnchor),
+//            publisherContent.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
         
     }

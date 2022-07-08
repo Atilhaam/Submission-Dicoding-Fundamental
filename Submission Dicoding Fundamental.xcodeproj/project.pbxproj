@@ -66,6 +66,7 @@
 		6753BAFC28746C5B008D48F7 /* Features */ = {
 			isa = PBXGroup;
 			children = (
+				6753BB13287732FD008D48F7 /* Creator */,
 				6753BAFE28746C7E008D48F7 /* Detail */,
 				6753BAFD28746C67008D48F7 /* Home */,
 			);
@@ -97,6 +98,13 @@
 				6753BB0E2876EFA3008D48F7 /* Extension.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		6753BB13287732FD008D48F7 /* Creator */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Creator;
 			sourceTree = "<group>";
 		};
 		6787C3A22852E4F600BDBDCD = {
