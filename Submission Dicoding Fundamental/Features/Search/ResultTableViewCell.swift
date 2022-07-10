@@ -1,14 +1,15 @@
 //
-//  GameCollectionViewCell.swift
+//  ResultTableViewCell.swift
 //  Submission Dicoding Fundamental
 //
-//  Created by Ilham Wibowo on 10/06/22.
+//  Created by Ilham Wibowo on 10/07/22.
 //
 
 import UIKit
-class GameCollectionViewCell: UICollectionViewCell {
-    
-    static let identifier = "GameCollectionViewCell"
+
+class ResultTableViewCell: UITableViewCell {
+
+    static let identifier = "ResultTableViewCell"
     
     let coverImage: UIImageView = {
         let image = UIImageView()
@@ -29,8 +30,6 @@ class GameCollectionViewCell: UICollectionViewCell {
     let releaseDateContent: UILabel = {
         let releaseDate = UILabel()
         releaseDate.textColor = .white
-//        releaseDate.text = "2013-09-17"
-//        releaseDate.font = UIFont.boldSystemFont(ofSize: 16)
         releaseDate.textAlignment = .center
         return releaseDate
     }()
@@ -39,18 +38,11 @@ class GameCollectionViewCell: UICollectionViewCell {
         let score = UILabel()
         score.textColor = .white
         score.textAlignment = .center
-//        score.font = UIFont.boldSystemFont(ofSize: 16)
-//        score.text = "95"
         return score
     }()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        backgroundColor = .black
-        layer.cornerRadius = 5
-        
-//        addSubview(coverImage)
-//        addSubview(gameTitle)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         configureConstraint()
         clipsToBounds = true
     }
@@ -88,19 +80,5 @@ class GameCollectionViewCell: UICollectionViewCell {
         
         ])
     }
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//        gameTitle.frame = CGRect(x: 5,
-//                             y: contentView.frame.size.height-50,
-//                             width: contentView.frame.size.width-10,
-//                             height: 50)
-//        coverImage.frame = CGRect(x: 5,
-//                             y: 10,
-//                             width: contentView.frame.size.width-10,
-//                             height: contentView.frame.size.height-50)
-//    }
-    
-    
-    
-    
+
 }

@@ -24,10 +24,6 @@ class DetailGameViewController: UIViewController {
         return tableView
     }()
     
-    override func viewWillAppear(_ animated: Bool) {
-        
-
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
@@ -67,7 +63,6 @@ class DetailGameViewController: UIViewController {
                 self.tableView.reloadData()
             }
         }
-        
 
         // Do any additional setup after loading the view.
     }
@@ -94,7 +89,6 @@ class DetailGameViewController: UIViewController {
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
         let id = game.id
-        print(id)
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -267,7 +261,7 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.imagePoster.kf.setImage(with: imageUrl)
                 cell.titleLabel.text = detail.name
             }
-//            cell.selectionStyle = .none
+            cell.selectionStyle = .none
             return cell
         }
         if indexPath.row == 1 {
@@ -275,20 +269,28 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
             if let detail = game {
                 let platformName = platformData.map({ $0.platform })
                 let platformDetail = platformName.map({ $0.name }).joined(separator: ", ")
-//                let platofrmText = platformData.map({"\($0)"}).joined(separator: ",")
                 let genreText = genreData.map({ $0.name }).joined(separator: ", ")
                 let developerText = developerData.map({ $0.name }).joined(separator: ", ")
                 let publisherText = publisherData.map({ $0.name }).joined(separator: ", ")
-                print(publisherText)
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd"
                 cell2.aboutContent.text = desc.html2String
                 cell2.platformsContent.text = platformDetail
                 cell2.genreContent.text = genreText
                 cell2.developerContent.text = developerText
                 cell2.publisherContent.text = publisherText
+                if detail.metacritic > 80 {
+                    cell2.metaCriticScoreContent.textColor = .green
+                } else if detail.metacritic >= 60 && detail.metacritic < 80 {
+                    cell2.metaCriticScoreContent.textColor = .yellow
+                } else {
+                    cell2.metaCriticScoreContent.textColor = .red
+                }
                 cell2.metaCriticScoreContent.text = String(detail.metacritic)
-                cell2.releaseDateContent.text = detail.released
+                cell2.releaseDateContent.text = dateFormatter.string(from: detail.released)
+                print(desc.count)
             }
-//            cell2.selectionStyle = .none
+            cell2.selectionStyle = .none
             return cell2
         }
         return cell
@@ -302,7 +304,7 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == 0 {
             if let game = game {
-                if game.name.count < 10 {
+                if game.name.count < 16 {
                     return 300
                 }
             }
@@ -310,6 +312,13 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
             return 350
         }
         if indexPath.row == 1 {
+            if desc.count > 1000 && desc.count < 1500 {
+                return 1300
+            } else if desc.count > 1500 && desc.count < 1800{
+                return 1550
+            } else if desc.count > 1800 {
+                return 1670
+            }
             return 1100
         }
         return 300

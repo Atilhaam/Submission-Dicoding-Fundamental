@@ -1,5 +1,5 @@
 //
-//  HomeViewController.swift
+//  CreatorViewController.swift
 //  Submission Dicoding Fundamental
 //
 //  Created by Ilham Wibowo on 10/06/22.
@@ -8,7 +8,7 @@
 import UIKit
 import Kingfisher
 
-class HomeViewController: UIViewController {
+class CreatorViewController: UIViewController {
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -18,27 +18,29 @@ class HomeViewController: UIViewController {
         var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.setCollectionViewLayout(layout, animated: true)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(GameCollectionViewCell.self, forCellWithReuseIdentifier: GameCollectionViewCell.identifier)
+        collectionView.register(CreatorCollectionViewCell.self, forCellWithReuseIdentifier: CreatorCollectionViewCell.identifier)
+        
         return collectionView
     }()
     
-    let searchController = UISearchController(searchResultsController: ResultViewController())
-    
-    private var gameData = [Game]()
+    private var creatorData = [Creator]()
+    private var positionData = [Position]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setUpCollectionView()
-        setupSearchbar()
-        fetchGames { game in
-            self.gameData.append(contentsOf: game)
+        title = "Creator"
+        setupCollectionView()
+        
+        fetchCreator { creator in
+            self.creatorData.append(contentsOf: creator)
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
         }
+        // Do any additional setup after loading the view.
     }
     
-    private func setUpCollectionView() {
+    private func setupCollectionView() {
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -50,19 +52,16 @@ class HomeViewController: UIViewController {
         collectionView.delegate = self
     }
     
-    func fetchGames(onCompletion: @escaping ([Game])-> Void)  {
+    func fetchCreator(onCompletion: @escaping ([Creator])-> Void) {
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let pageSize = "30"
-        var components = URLComponents(string: "https://api.rawg.io/api/games")!
+        var components = URLComponents(string: "https://api.rawg.io/api/creators")!
         
         components.queryItems = [
-            URLQueryItem(name: "page_size", value: pageSize),
             URLQueryItem(name: "key", value: apiKey)
         ]
         
         let request = URLRequest(url: components.url!)
-        var gamesTotal = [Game]()
-        
+        var creatorsTotal = [Creator]()
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let response = response as? HTTPURLResponse, let data = data else {
@@ -71,11 +70,39 @@ class HomeViewController: UIViewController {
             
             if response.statusCode == 200 {
                 let decoder = JSONDecoder()
-                if let games = try? decoder.decode(Games.self, from: data) as Games {
-                    gamesTotal.append(contentsOf: games.games)
-                    
+                if let creator = try? decoder.decode(Creators.self, from: data) as Creators {
+                    creatorsTotal.append(contentsOf: creator.creators)
                 }
-                onCompletion(gamesTotal)
+                onCompletion(creatorsTotal)
+            } else {
+                print("ERROR: \(data), HTTP Status: \(response.statusCode)")
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchCreatorGames(onCompletion: @escaping ([GameCreator])-> Void) {
+        let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
+        var components = URLComponents(string: "https://api.rawg.io/api/creators")!
+        
+        components.queryItems = [
+            URLQueryItem(name: "key", value: apiKey)
+        ]
+        
+        let request = URLRequest(url: components.url!)
+        var creatorGamesTotal = [GameCreator]()
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let response = response as? HTTPURLResponse, let data = data else {
+                return
+            }
+            
+            if response.statusCode == 200 {
+                let decoder = JSONDecoder()
+                if let creator = try? decoder.decode(Creator.self, from: data) as Creator {
+                    creatorGamesTotal.append(contentsOf: creator.games)
+                }
+                onCompletion(creatorGamesTotal)
             } else {
                 print("ERROR: \(data), HTTP Status: \(response.statusCode)")
             }
@@ -84,44 +111,30 @@ class HomeViewController: UIViewController {
     }
 }
 
-extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension CreatorViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return gameData.count
+        return creatorData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        let detail = DetailGameViewController()
-        detail.game = gameData[indexPath.row]
-        
+        let detail = DetailCreatorViewController()
+        detail.creator = creatorData[indexPath.row]        
         self.navigationController?.pushViewController(detail, animated: true)
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GameCollectionViewCell.identifier, for: indexPath) as? GameCollectionViewCell {
-            let game = gameData[indexPath.row]
-            let imageUrl = URL(string: game.backgroundImage)
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "YYY"
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CreatorCollectionViewCell.identifier, for: indexPath) as? CreatorCollectionViewCell {
+            let creator = creatorData[indexPath.row]
+            let imageUrl = URL(string: creator.image)
             cell.coverImage.kf.setImage(with: imageUrl)
-            cell.gameTitle.text = game.name
-            cell.releaseDateContent.text = "(\(dateFormatter.string(from: game.released)))"
-            cell.metaCriticScoreContent.text = String(game.metacritic)
-            if game.metacritic > 80 {
-                cell.metaCriticScoreContent.textColor = .green
-            } else if game.metacritic >= 60 && game.metacritic < 80 {
-                cell.metaCriticScoreContent.textColor = .yellow
-            } else {
-                cell.metaCriticScoreContent.textColor = .red
-            }
+            cell.creatorTitle.text = creator.name
             return cell
         } else {
             print("kosong")
             return UICollectionViewCell()
         }
     }
-     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 1.0, left: 8.0, bottom: 1.0, right: 8.0)
@@ -133,23 +146,5 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
         return CGSize(width: widthPerItem - 8, height: 250)
     }
     
-}
-
-extension HomeViewController: UISearchBarDelegate {
     
-    func setupSearchbar() {
-        navigationItem.searchController = searchController
-        searchController.searchBar.delegate = self
-    }
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        if let text = searchController.searchBar.text {
-            let resultVC = searchController.searchResultsController as? ResultViewController
-            resultVC?.gameId = text
-            print(text)
-        } else {
-            print("masi kosong")
-        }
-    }
 }
-
