@@ -21,7 +21,7 @@ class ResultTableViewCell: UITableViewCell {
     
     let gameTitle: UILabel = {
         let title = UILabel()
-        title.textColor = .white
+        title.textColor = .black
         title.textAlignment = .center
         title.numberOfLines = 2
         return title

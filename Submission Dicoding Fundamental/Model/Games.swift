@@ -23,6 +23,17 @@ struct GamesSearch: Codable {
 struct GameInSearch: Codable {
     let name: String
     let id: Int
+    let backgroundImage: String
+    let metacritic: Int
+    
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case id
+        case backgroundImage = "background_image"
+        case metacritic
+    }
+
     
 }
 

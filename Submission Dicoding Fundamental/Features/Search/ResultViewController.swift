@@ -17,22 +17,27 @@ class ResultViewController: UIViewController {
     }()
     
     var gameData = [GameInSearch]()
-    var gameId: String?
-
+    var gameId: String = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
-        if let gameId = gameId {
-            fetchGamesOnSearch(gameId) { game in
-                self.gameData.append(contentsOf: game)
-                DispatchQueue.main.async {
-                    print(self.gameData.count)
-                    self.tableView.reloadData()
-                }
+         
+    }
+    
+    func something(gameId: String) {
+        self.gameId = gameId
+        fetchGamesOnSearch(gameId) { game in
+            self.gameData.append(contentsOf: game)
+            DispatchQueue.main.async {
+                print(self.gameData.count)
+                self.tableView.reloadData()
+//                self.gameData.removeAll()
             }
         }
+        
     }
+
     
     private func setupTableView() {
         view.addSubview(tableView)
@@ -81,21 +86,10 @@ class ResultViewController: UIViewController {
 extension ResultViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: ResultTableViewCell.identifier, for: indexPath) as? ResultTableViewCell {
-            let game = gameData[indexPath.row]
-//            let imageUrl = URL(string: game.backgroundImage)
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.dateFormat = "YYY"
-//            cell.coverImage.kf.setImage(with: imageUrl)
-            cell.gameTitle.text = game.name
-//            cell.releaseDateContent.text = "(\(dateFormatter.string(from: game.released)))"
-//            cell.metaCriticScoreContent.text = String(game.metacritic)
-//            if game.metacritic > 80 {
-//                cell.metaCriticScoreContent.textColor = .green
-//            } else if game.metacritic >= 60 && game.metacritic < 80 {
-//                cell.metaCriticScoreContent.textColor = .yellow
-//            } else {
-//                cell.metaCriticScoreContent.textColor = .red
-//            }
+            if gameData.count > 1 {
+                let game = gameData[indexPath.row]
+                cell.gameTitle.text = game.name
+            }
             return cell
         } else {
             print("kosong")
@@ -106,8 +100,9 @@ extension ResultViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return gameData.count
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 300
+        return 100
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -9,6 +9,12 @@ import UIKit
 import Kingfisher
 
 class HomeViewController: UIViewController {
+
+//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+//        if let vc = segue.destination as? ResultViewController {
+//            vc.gameId = id
+//        }
+//    }
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -23,7 +29,7 @@ class HomeViewController: UIViewController {
     }()
     
     let searchController = UISearchController(searchResultsController: ResultViewController())
-    
+    private var id = ""
     private var gameData = [Game]()
 
     override func viewDidLoad() {
@@ -144,8 +150,13 @@ extension HomeViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         if let text = searchController.searchBar.text {
+            
             let resultVC = searchController.searchResultsController as? ResultViewController
             resultVC?.gameId = text
+            resultVC?.gameData.removeAll()
+//            self.id = text
+            self.navigationController?.pushViewController(resultVC!, animated: true)
+            resultVC?.something(gameId: text)
             print(text)
         } else {
             print("masi kosong")
