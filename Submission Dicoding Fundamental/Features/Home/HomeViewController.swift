@@ -9,12 +9,6 @@ import UIKit
 import Kingfisher
 
 class HomeViewController: UIViewController {
-
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if let vc = segue.destination as? ResultViewController {
-//            vc.gameId = id
-//        }
-//    }
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -107,19 +101,25 @@ extension HomeViewController: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GameCollectionViewCell.identifier, for: indexPath) as? GameCollectionViewCell {
             let game = gameData[indexPath.row]
-            let imageUrl = URL(string: game.backgroundImage)
+            if let image = game.backgroundImage {
+                let imageUrl = URL(string: image)
+                cell.coverImage.kf.setImage(with: imageUrl)
+            }
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "YYY"
-            cell.coverImage.kf.setImage(with: imageUrl)
             cell.gameTitle.text = game.name
-            cell.releaseDateContent.text = "(\(dateFormatter.string(from: game.released)))"
-            cell.metaCriticScoreContent.text = String(game.metacritic)
-            if game.metacritic > 80 {
-                cell.metaCriticScoreContent.textColor = .green
-            } else if game.metacritic >= 60 && game.metacritic < 80 {
-                cell.metaCriticScoreContent.textColor = .yellow
-            } else {
-                cell.metaCriticScoreContent.textColor = .red
+            if let date = game.released {
+                cell.releaseDateContent.text = "(\(dateFormatter.string(from: date)))"
+            }
+            if let metacritic = game.metacritic {
+                cell.metaCriticScoreContent.text = String(metacritic)
+                if metacritic > 80 {
+                    cell.metaCriticScoreContent.textColor = .green
+                } else if metacritic >= 60 && metacritic < 80 {
+                    cell.metaCriticScoreContent.textColor = .yellow
+                } else {
+                    cell.metaCriticScoreContent.textColor = .red
+                }
             }
             return cell
         } else {
@@ -154,7 +154,6 @@ extension HomeViewController: UISearchBarDelegate {
             let resultVC = searchController.searchResultsController as? ResultViewController
             resultVC?.gameId = text
             resultVC?.gameData.removeAll()
-//            self.id = text
             self.navigationController?.pushViewController(resultVC!, animated: true)
             resultVC?.something(gameId: text)
             print(text)

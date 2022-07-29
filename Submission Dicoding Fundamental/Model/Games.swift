@@ -20,23 +20,6 @@ struct GamesSearch: Codable {
     
 }
 
-struct GameInSearch: Codable {
-    let name: String
-    let id: Int
-    let backgroundImage: String
-    let metacritic: Int
-    
-    
-    enum CodingKeys: String, CodingKey {
-        case name
-        case id
-        case backgroundImage = "background_image"
-        case metacritic
-    }
-
-    
-}
-
 struct Games: Codable {
     let count: Int
     let games: [Game]
@@ -51,10 +34,10 @@ struct Games: Codable {
 struct Game: Codable {
     let id: Int
     let name: String
-    let backgroundImage: String
-    let rating: Double
-    let metacritic: Int
-    let released: Date
+    let backgroundImage: String?
+    let rating: Double?
+    let metacritic: Int?
+    let released: Date?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -81,8 +64,31 @@ struct Game: Codable {
     }
 }
 
+struct GameInSearch: Codable {
+    let name: String
+    let id: Int
+    let backgroundImage: String?
+    let metacritic: Int?
+//    let released: Date?
+
+    
+    enum CodingKeys: String, CodingKey {
+        case name
+        case id
+        case backgroundImage = "background_image"
+        case metacritic
+//        case released
+
+    }
+
+    
+}
+
 struct GameDetail: Codable {
     let description: String
+    let metacritic: Int
+    let released: String
+    let background_image: String
     let genres: [Genre]
     let platforms: [Platforms]
     let developers: [Developer]

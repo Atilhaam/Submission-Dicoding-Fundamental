@@ -32,7 +32,6 @@ class ResultViewController: UIViewController {
             DispatchQueue.main.async {
                 print(self.gameData.count)
                 self.tableView.reloadData()
-//                self.gameData.removeAll()
             }
         }
         
@@ -89,6 +88,13 @@ extension ResultViewController: UITableViewDelegate, UITableViewDataSource {
             if gameData.count > 1 {
                 let game = gameData[indexPath.row]
                 cell.gameTitle.text = game.name
+                if let image = game.backgroundImage {
+                    let imageUrl = URL(string: image)
+                    cell.coverImage.kf.setImage(with: imageUrl)
+                } else {
+                    print("image kosong")
+                }
+                
             }
             return cell
         } else {
@@ -108,6 +114,7 @@ extension ResultViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let detail = DetailGameViewController()
+        detail.gameFromSearch = gameData[indexPath.row]
 //        detail.game = gameData[indexPath.row]
         
         self.navigationController?.pushViewController(detail, animated: true)

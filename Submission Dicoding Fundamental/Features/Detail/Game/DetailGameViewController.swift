@@ -10,11 +10,15 @@ import Kingfisher
 class DetailGameViewController: UIViewController {
     
     var game: Game?
+    var gameFromSearch: GameInSearch?
     private var genreData = [Genre]()
     private var platformData = [Platforms]()
     private var developerData = [Developer]()
     private var publisherData = [Publisher]()
     private var desc: String = ""
+    private var metacritic: String = ""
+    private var date: String = ""
+    private var imageUrl: String = ""
     
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -27,6 +31,27 @@ class DetailGameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
+        
+        fetchMetacritic { metacritic in
+            self.metacritic.append(contentsOf: metacritic)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+        
+        fetchDate { date in
+            self.date.append(contentsOf: date)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
+        
+        fetchImage { imageUrl in
+            self.imageUrl.append(contentsOf: imageUrl)
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
         
         fetchDescription { desc in
             self.desc.append(contentsOf: desc)
@@ -82,13 +107,132 @@ class DetailGameViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
     }
-    
-    func fetchDescription(onCompletion: @escaping (String)-> Void) {
-        guard let game = game else {
-            return
+    func fetchMetacritic(onCompletion: @escaping (String)-> Void) {
+//        guard let gameSearch = gameFromSearch else {
+//            return
+//        }
+        
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let id = game.id
+        
+        var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
+        
+        components.queryItems = [
+            URLQueryItem(name: "key", value: apiKey)
+        ]
+        
+        let request = URLRequest(url: components.url!)
+        var metacritic = ""
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let response = response as? HTTPURLResponse, let data = data else {
+                return
+            }
+            if response.statusCode == 200 {
+                let decoder = JSONDecoder()
+                if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
+                    metacritic.append(contentsOf: String(gamesDetail.metacritic))
+                } else {
+                    print("nilai metacritic kosong")
+                }
+                onCompletion(metacritic)
+            } else {
+                print("ERROR: \(data), HTTP Status: \(response.statusCode)")
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchDate(onCompletion: @escaping (String)-> Void) {
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
+        }
+        let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
+        
+        var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
+        
+        components.queryItems = [
+            URLQueryItem(name: "key", value: apiKey)
+        ]
+        
+        let request = URLRequest(url: components.url!)
+        var date = ""
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let response = response as? HTTPURLResponse, let data = data else {
+                return
+            }
+            if response.statusCode == 200 {
+                let decoder = JSONDecoder()
+                if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
+                    date.append(contentsOf: gamesDetail.released)
+                    
+                } else {
+                    print("nilai date kosong")
+                }
+                onCompletion(date)
+            } else {
+                print("ERROR: \(data), HTTP Status: \(response.statusCode)")
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchImage(onCompletion: @escaping (String)-> Void) {
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
+        }
+        let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
+        
+        var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
+        
+        components.queryItems = [
+            URLQueryItem(name: "key", value: apiKey)
+        ]
+        
+        let request = URLRequest(url: components.url!)
+        var image = ""
+        
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let response = response as? HTTPURLResponse, let data = data else {
+                return
+            }
+            if response.statusCode == 200 {
+                let decoder = JSONDecoder()
+                if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
+                    image.append(contentsOf: gamesDetail.background_image)
+                    
+                } else {
+                    print("nilai image kosong")
+                }
+                onCompletion(image)
+            } else {
+                print("ERROR: \(data), HTTP Status: \(response.statusCode)")
+            }
+        }
+        task.resume()
+    }
+    
+    func fetchDescription(onCompletion: @escaping (String)-> Void) {
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
+        }
+        let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
+        
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -108,7 +252,7 @@ class DetailGameViewController: UIViewController {
                     desc.append(contentsOf: gamesDetail.description)
                     
                 } else {
-                    print("nil")
+                    print("nilai description kosong")
                 }
                 onCompletion(desc)
             } else {
@@ -119,11 +263,13 @@ class DetailGameViewController: UIViewController {
     }
     
     func fetchGenre(onCompletion: @escaping ([Genre])-> Void) {
-        guard let game = game else {
-            return
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let id = game.id
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -141,7 +287,8 @@ class DetailGameViewController: UIViewController {
                 let decoder = JSONDecoder()
                 if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
                     genreTotal.append(contentsOf: gamesDetail.genres)
-                    
+                } else {
+                    print("nilai genre kosong")
                 }
                 onCompletion(genreTotal)
             } else {
@@ -152,11 +299,13 @@ class DetailGameViewController: UIViewController {
     }
     
     func fetchPlatform(onCompletion: @escaping ([Platforms])-> Void) {
-        guard let game = game else {
-            return
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let id = game.id
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -175,6 +324,8 @@ class DetailGameViewController: UIViewController {
                 if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
                     platformTotal.append(contentsOf: gamesDetail.platforms)
                     
+                } else {
+                    print("nilai platform kosong")
                 }
                 onCompletion(platformTotal)
             } else {
@@ -185,11 +336,13 @@ class DetailGameViewController: UIViewController {
     }
     
     func fetchDeveloper(onCompletion: @escaping ([Developer])-> Void) {
-        guard let game = game else {
-            return
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let id = game.id
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -208,6 +361,8 @@ class DetailGameViewController: UIViewController {
                 if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
                     developerTotal.append(contentsOf: gamesDetail.developers)
                     
+                } else {
+                    print("nilai developer kosong")
                 }
                 onCompletion(developerTotal)
             } else {
@@ -218,11 +373,13 @@ class DetailGameViewController: UIViewController {
     }
     
     func fetchPublisher(onCompletion: @escaping ([Publisher])-> Void) {
-        guard let game = game else {
-            return
+        var id = ""
+        if let game = game {
+            id = String(game.id)
+        } else if let gameFromSearch = gameFromSearch {
+            id = String(gameFromSearch.id)
         }
         let apiKey = "fec28c04ac1b4d7da35bf4d9802e4d36"
-        let id = game.id
         var components = URLComponents(string: "https://api.rawg.io/api/games/\(id)")!
         
         components.queryItems = [
@@ -240,7 +397,8 @@ class DetailGameViewController: UIViewController {
                 let decoder = JSONDecoder()
                 if let gamesDetail = try? decoder.decode(GameDetail.self, from: data) as GameDetail {
                     publisherTotal.append(contentsOf: gamesDetail.publishers)
-                    
+                } else {
+                    print("nilai publisher kosong")
                 }
                 onCompletion(publisherTotal)
             } else {
@@ -257,9 +415,15 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: FirstRowTableViewCell.identifier) as! FirstRowTableViewCell
         if indexPath.row == 0 {
             if let detail = game {
-                let imageUrl = URL(string: detail.backgroundImage)
-                cell.imagePoster.kf.setImage(with: imageUrl)
+                if let image = detail.backgroundImage {
+                    let imageUrl = URL(string: image)
+                    cell.imagePoster.kf.setImage(with: imageUrl)
+                }
                 cell.titleLabel.text = detail.name
+            } else if let detailFromSearch = gameFromSearch {
+                cell.titleLabel.text = detailFromSearch.name
+                let imageUrl = URL(string: detailFromSearch.backgroundImage ?? "")
+                cell.imagePoster.kf.setImage(with: imageUrl)
             }
             cell.selectionStyle = .none
             return cell
@@ -274,21 +438,60 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
                 let publisherText = publisherData.map({ $0.name }).joined(separator: ", ")
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "yyyy-MM-dd"
-                cell2.aboutContent.text = desc.html2String
+                let contentAbout = desc.html2String
+                print(contentAbout.count)
+                cell2.aboutContent.text = contentAbout
                 cell2.platformsContent.text = platformDetail
                 cell2.genreContent.text = genreText
                 cell2.developerContent.text = developerText
                 cell2.publisherContent.text = publisherText
-                if detail.metacritic > 80 {
-                    cell2.metaCriticScoreContent.textColor = .green
-                } else if detail.metacritic >= 60 && detail.metacritic < 80 {
-                    cell2.metaCriticScoreContent.textColor = .yellow
-                } else {
-                    cell2.metaCriticScoreContent.textColor = .red
+                if let metacritic = detail.metacritic {
+                    if metacritic > 80 {
+                        cell2.metaCriticScoreContent.textColor = .green
+                    } else if metacritic >= 60 && metacritic < 80 {
+                        cell2.metaCriticScoreContent.textColor = .yellow
+                    } else {
+                        cell2.metaCriticScoreContent.textColor = .red
+                    }
+                    cell2.metaCriticScoreContent.text = String(metacritic)
                 }
-                cell2.metaCriticScoreContent.text = String(detail.metacritic)
-                cell2.releaseDateContent.text = dateFormatter.string(from: detail.released)
-                print(desc.count)
+                if let date = detail.released {
+                    cell2.releaseDateContent.text = dateFormatter.string(from: date)
+                }
+            } else if let detailFromSearch = gameFromSearch {
+                let platformName = platformData.map({ $0.platform })
+                let platformDetail = platformName.map({ $0.name }).joined(separator: ", ")
+                let genreText = genreData.map({ $0.name }).joined(separator: ", ")
+                let developerText = developerData.map({ $0.name }).joined(separator: ", ")
+                let publisherText = publisherData.map({ $0.name }).joined(separator: ", ")
+                let contentAbout = desc.html2String
+                print(contentAbout.count)
+                cell2.aboutContent.text = contentAbout
+                cell2.platformsContent.text = platformDetail
+                cell2.genreContent.text = genreText
+                cell2.developerContent.text = developerText
+                cell2.publisherContent.text = publisherText
+                cell2.releaseDateContent.text = date
+                if let metacritic = detailFromSearch.metacritic {
+                    if metacritic > 80 {
+                        cell2.metaCriticScoreContent.textColor = .green
+                    } else if metacritic >= 60 && metacritic <= 80 {
+                        cell2.metaCriticScoreContent.textColor = .yellow
+                    } else {
+                        cell2.metaCriticScoreContent.textColor = .red
+                    }
+                    cell2.metaCriticScoreContent.text = String(metacritic)
+                } else {
+                    if Int(metacritic) ?? 0 > 80 {
+                        cell2.metaCriticScoreContent.textColor = .green
+                    } else if Int(metacritic) ?? 0 >= 60 && Int(metacritic) ?? 0 <= 80 {
+                        cell2.metaCriticScoreContent.textColor = .yellow
+                    } else {
+                        cell2.metaCriticScoreContent.textColor = .red
+                    }
+                    cell2.metaCriticScoreContent.text = String(metacritic)
+                }
+                
             }
             cell2.selectionStyle = .none
             return cell2
@@ -314,10 +517,18 @@ extension DetailGameViewController: UITableViewDelegate, UITableViewDataSource {
         if indexPath.row == 1 {
             if desc.count > 1000 && desc.count < 1500 {
                 return 1300
-            } else if desc.count > 1500 && desc.count < 1800{
+            } else if desc.count > 1500 && desc.count < 1800 {
                 return 1550
-            } else if desc.count > 1800 {
+            } else if desc.count > 1800 && desc.count < 2000 {
                 return 1670
+            } else if desc.count > 2000 && desc.count < 2300 {
+                return 1800
+            } else if desc.count > 2300 && desc.count < 2500 {
+                return 2200
+            } else if desc.count > 2500 && desc.count < 2800 {
+                return 3000
+            } else if desc.count > 2800 {
+                return 4000
             }
             return 1100
         }
